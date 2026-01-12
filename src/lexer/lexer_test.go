@@ -5,30 +5,44 @@ import (
 	"testing"
 )
 
-func TestNextToken(t *testing.T) {
-	input := `let five = 5;
-let ten = 10;
-let add = fn(x, y) {
-x + y;
-};
-let result = add(five, ten);
-`
+type expected_token struct {
+	expectedType    token.TokenType
+	expectedLiteral string
+}
 
-	tests := []struct {
-		expectedType    token.TokenType
-		expectedLiteral string
-	}{
-		{token.LET, "let"},
+func do_test(t *testing.T, tests []expected_token, l *Lexer) {
+	for i, tt := range tests {
+		tok := l.NextToken()
+		if tok.Type != tt.expectedType {
+			t.Fatalf("tests[%d] - token type wrong. expected=%q, got=%q", i, tt.expectedType, tok.Type)
+		}
+		if tok.Literal != tt.expectedLiteral {
+			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
+		}
+	}
+}
+
+func Test1(t *testing.T) {
+	input := `var five = 5;
+	var ten = 10;
+	var add = fn(x, y) {
+	x + y;
+	};
+	var result = add(five, ten);
+	`
+
+	tests := []expected_token{
+		{token.VAR, "var"},
 		{token.IDENT, "five"},
 		{token.ASSIGN, "="},
 		{token.INT, "5"},
 		{token.SEMICOLON, ";"},
-		{token.LET, "let"},
+		{token.VAR, "var"},
 		{token.IDENT, "ten"},
 		{token.ASSIGN, "="},
 		{token.INT, "10"},
 		{token.SEMICOLON, ";"},
-		{token.LET, "let"},
+		{token.VAR, "var"},
 		{token.IDENT, "add"},
 		{token.ASSIGN, "="},
 		{token.FUNCTION, "fn"},
@@ -44,7 +58,7 @@ let result = add(five, ten);
 		{token.SEMICOLON, ";"},
 		{token.RBRACE, "}"},
 		{token.SEMICOLON, ";"},
-		{token.LET, "let"},
+		{token.VAR, "var"},
 		{token.IDENT, "result"},
 		{token.ASSIGN, "="},
 		{token.IDENT, "add"},
@@ -57,13 +71,28 @@ let result = add(five, ten);
 	}
 
 	l := New(input)
-	for i, tt := range tests {
-		tok := l.NextToken()
-		if tok.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - token type wrong. expected=%q, got=%q", i, tt.expectedType, tok.Type)
-		}
-		if tok.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
-		}
+	do_test(t, tests, l)
+}
+
+func Test2(t *testing.T) {
+	input := `
+	!*/<> true false return if else
+	!= ==
+	`
+	tests := []expected_token{
+		{token.BANG, "!"},
+		{token.STAR, "*"},
+		{token.SLASH, "/"},
+		{token.LT, "<"},
+		{token.GT, ">"},
+		{token.TRUE, "true"},
+		{token.FALSE, "false"},
+		{token.RETURN, "return"},
+		{token.IF, "if"},
+		{token.ELSE, "else"},
+		{token.DIFF, "!="},
+		{token.EQUAL, "=="},
 	}
+	l := New(input)
+	do_test(t, tests, l)
 }

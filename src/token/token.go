@@ -21,12 +21,29 @@ const (
 	LBRACE    = "LBRACE"
 	RBRACE    = "RBRACE"
 	FUNCTION  = "FUNCTION"
-	LET       = "LET"
+	VAR       = "VAR"
+	BANG      = "BANG"
+	STAR      = "STAR"
+	SLASH     = "/"
+	LT        = "<"
+	GT        = ">"
+	TRUE      = "TRUE"
+	FALSE     = "FALSE"
+	RETURN    = "RETURN"
+	IF        = "IF"
+	ELSE      = "ELSE"
+	DIFF      = "DIFF"
+	EQUAL     = "EQUAL"
 )
 
 var keywords = map[string]TokenType{
-	"fn":  FUNCTION,
-	"let": LET,
+	"fn":     FUNCTION,
+	"var":    VAR,
+	"true":   TRUE,
+	"false":  FALSE,
+	"return": RETURN,
+	"if":     IF,
+	"else":   ELSE,
 }
 
 func LookupID(id string) TokenType {

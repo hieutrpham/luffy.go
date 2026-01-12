@@ -18,7 +18,7 @@ func New(input string) *Lexer {
 	return l
 }
 
-// initialize the lexer
+// read the next char in the lexer and move the readPosition pointer
 func (l *Lexer) readChar() {
 	if l.readPosition >= len(l.input) {
 		l.ch = 0
@@ -29,14 +29,45 @@ func (l *Lexer) readChar() {
 	l.readPosition++
 }
 
+// look ahead 1 character without moving the pointer
+func (l *Lexer) peekChar() byte {
+	if l.readPosition >= len(l.input) {
+		return 0
+	} else {
+		return l.input[l.readPosition]
+	}
+}
+
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 
 	l.skipWhiteSpace()
 
 	switch l.ch {
+	case '>':
+		tok = newToken(token.GT, l.ch)
+	case '<':
+		tok = newToken(token.LT, l.ch)
+	case '/':
+		tok = newToken(token.SLASH, l.ch)
+	case '*':
+		tok = newToken(token.STAR, l.ch)
+	case '!':
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			tok = token.Token{Type: token.DIFF, Literal: string(ch) + string(l.ch)}
+		} else {
+			tok = newToken(token.BANG, l.ch)
+		}
 	case '=':
-		tok = newToken(token.ASSIGN, l.ch)
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			tok = token.Token{Type: token.EQUAL, Literal: string(ch) + string(l.ch)}
+		} else {
+			tok = newToken(token.ASSIGN, l.ch)
+		}
 	case ';':
 		tok = newToken(token.SEMICOLON, l.ch)
 	case '(':
